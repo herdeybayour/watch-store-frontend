@@ -3,8 +3,8 @@ import { STORE_CONFIG as S } from "../config/store";
 import { openGeneralChat } from "../utils/whatsapp";
 import { useSettings } from "../context/SettingsContext";
 export default function Contact() {
-  const { whatsappNumber, email } = useSettings();
-  usePageMeta("Contact", `Contact ${S.name} on WhatsApp.`);
+  const { storeName, whatsappNumber, email } = useSettings();
+  usePageMeta("Contact", `Contact ${storeName} on WhatsApp.`);
   return (
     <div className="wrap max-w-3xl py-14 sm:py-20">
       <h1 className="font-display text-4xl font-semibold sm:text-6xl">Contact us</h1>

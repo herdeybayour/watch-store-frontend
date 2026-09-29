@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import usePageMeta from "../hooks/usePageMeta";
-import { STORE_CONFIG as S } from "../config/store";
 import { useProducts } from "../context/ProductsContext";
 import { openGeneralChat } from "../utils/whatsapp";
 import { useSettings } from "../context/SettingsContext";
@@ -27,8 +26,8 @@ const Head = ({ title, to }) => (
 );
 
 export default function Home() {
-  const { whatsappNumber } = useSettings();
-  usePageMeta("", `${S.name}: premium watches. Order easily on WhatsApp.`);
+  const { storeName, whatsappNumber } = useSettings();
+  usePageMeta("", `${storeName}: premium watches. Order easily on WhatsApp.`);
   const { products: all, categories } = useProducts();
   const featured = all.filter((p) => p.featured).slice(0, 4);
   const fresh = all.filter((p) => p.newArrival).slice(0, 4);
@@ -83,7 +82,7 @@ export default function Home() {
 
       <section className="border-y border-line bg-surface">
         <div className="section wrap max-w-3xl text-center">
-          <h2 className="h2">About {S.name}</h2>
+          <h2 className="h2">About {storeName}</h2>
           <p className="mt-6 text-muted">We sell watches that look refined without the luxury markup. Every piece is picked for finish, comfort and value, and every order is handled personally.</p>
           <Link to="/about" className="btn btn-outline mt-8">Our story</Link>
         </div>

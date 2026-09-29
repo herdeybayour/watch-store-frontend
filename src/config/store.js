@@ -1,6 +1,6 @@
 // Single place for brand + contact settings.
 export const STORE_CONFIG = {
-  name: "MAISON TEMPO",
+  name: "Maison Tempo", // default/fallback only — the live name comes from the admin Settings (SettingsContext.storeName)
   tagline: "Timeless style. Made for you.",
   // WhatsApp number, email, and social links are no longer set here — the admin
   // manages them from Admin Dashboard > Settings, and they're stored in the

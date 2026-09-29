@@ -2,12 +2,12 @@ import { Link } from "react-router-dom";
 import { STORE_CONFIG as S } from "../config/store";
 import { useSettings } from "../context/SettingsContext";
 export default function Footer() {
-  const { whatsappNumber, email, instagramUrl, facebookUrl, tiktokUrl } = useSettings();
+  const { storeName, whatsappNumber, email, instagramUrl, facebookUrl, tiktokUrl } = useSettings();
   return (
     <footer className="mt-16 border-t border-line bg-surface">
       <div className="wrap grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="font-display text-2xl font-bold tracking-[0.2em]">{S.name}</p>
+          <p className="font-display text-2xl font-bold uppercase tracking-[0.2em]">{storeName}</p>
           <p className="mt-3 max-w-xs text-sm text-muted">{S.tagline}</p>
         </div>
         <div className="flex flex-col gap-2 text-sm text-muted">
@@ -28,7 +28,7 @@ export default function Footer() {
           {!instagramUrl && !tiktokUrl && !facebookUrl && <span className="text-xs text-muted">No social links yet.</span>}
         </div>
       </div>
-      <p className="border-t border-line py-5 text-center text-xs text-muted">© {new Date().getFullYear()} {S.name}. All rights reserved.</p>
+      <p className="border-t border-line py-5 text-center text-xs text-muted">© {new Date().getFullYear()} {storeName}. All rights reserved.</p>
     </footer>
   );
 }

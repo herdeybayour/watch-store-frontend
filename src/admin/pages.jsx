@@ -5,7 +5,6 @@ import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
 import { useSettings } from "../context/SettingsContext";
 import { formatPrice } from "../utils/format";
-import { STORE_CONFIG } from "../config/store";
 
 const input = "w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm";
 const Title = ({ children, action }) => <div className="mb-6 flex items-center justify-between gap-3"><h1 className="font-display text-3xl font-semibold">{children}</h1>{action}</div>;
@@ -14,13 +13,14 @@ const Badge = ({ on, children }) => <span className={`rounded-full px-2 py-0.5 t
 
 export function Login() {
   const { token, login } = useAuth(); const nav = useNavigate();
+  const { storeName } = useSettings();
   const [e, setE] = useState(""), [p, setP] = useState(""), [err, setErr] = useState(""), [busy, setBusy] = useState(false);
   if (token) return <Navigate to="/admin" replace />;
   const submit = async (ev) => { ev.preventDefault(); setBusy(true); setErr(""); try { await login(e, p); nav("/admin"); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <form onSubmit={submit} className="w-full max-w-sm rounded-2xl border border-line bg-surface p-8">
-        <h1 className="font-display text-3xl font-semibold">Admin login</h1><p className="mb-6 mt-1 text-sm text-muted">{STORE_CONFIG.name}</p>
+        <h1 className="font-display text-3xl font-semibold">Admin login</h1><p className="mb-6 mt-1 text-sm text-muted">{storeName}</p>
         <Err>{err}</Err>
         <label className="text-sm">Email<input type="email" required autoComplete="username" value={e} onChange={(x) => setE(x.target.value)} className={`${input} mb-4 mt-1`} /></label>
         <label className="text-sm">Password<input type="password" required autoComplete="current-password" value={p} onChange={(x) => setP(x.target.value)} className={`${input} mt-1`} /></label>
@@ -209,13 +209,14 @@ export function CategoriesAdmin() {
 }
 
 const SETTINGS_FIELDS = [
+  ["storeName", "Store / Company Name", "text", "e.g. Maison Tempo", "Shown in the header, footer, page titles and admin panel. Up to 150 characters."],
   ["whatsappNumber", "WhatsApp Number", "text", "e.g. 2348012345678", 'Include the country code. Spaces, "+", hyphens and brackets are fine — they\'re removed automatically.'],
   ["email", "Email", "email", "e.g. hello@yourstore.com", "Shown on the Contact page and in the footer."],
   ["instagramUrl", "Instagram URL", "url", "https://instagram.com/yourstore", "Optional — leave blank if you don't use Instagram."],
   ["facebookUrl", "Facebook URL", "url", "https://facebook.com/yourstore", "Optional — leave blank if you don't use Facebook."],
   ["tiktokUrl", "TikTok URL", "url", "https://tiktok.com/@yourstore", "Optional — leave blank if you don't use TikTok."],
 ];
-const SETTINGS_EMPTY = { whatsappNumber: "", email: "", instagramUrl: "", facebookUrl: "", tiktokUrl: "" };
+const SETTINGS_EMPTY = { storeName: "", whatsappNumber: "", email: "", instagramUrl: "", facebookUrl: "", tiktokUrl: "" };
 
 export function SettingsAdmin() {
   const { email: adminEmail, logout } = useAuth();
@@ -226,15 +227,15 @@ export function SettingsAdmin() {
   const [err, setErr] = useState(""), [ok, setOk] = useState(""), [busy, setBusy] = useState(false);
 
   // Fill the form once the real settings have loaded, without overwriting what the admin is typing.
-  useEffect(() => { if (!synced && !loading) { setForm({ whatsappNumber: settings.whatsappNumber, email: settings.email, instagramUrl: settings.instagramUrl, facebookUrl: settings.facebookUrl, tiktokUrl: settings.tiktokUrl }); setSynced(true); } }, [loading, synced, settings]);
+  useEffect(() => { if (!synced && !loading) { setForm({ storeName: settings.storeName, whatsappNumber: settings.whatsappNumber, email: settings.email, instagramUrl: settings.instagramUrl, facebookUrl: settings.facebookUrl, tiktokUrl: settings.tiktokUrl }); setSynced(true); } }, [loading, synced, settings]);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const save = async (e) => {
     e.preventDefault(); setErr(""); setOk(""); setBusy(true);
     try {
-      const res = await api.updateSettings({ whatsAppNumber: form.whatsappNumber, email: form.email, instagramUrl: form.instagramUrl, facebookUrl: form.facebookUrl, tiktokUrl: form.tiktokUrl });
-      applySaved(res); // every WhatsApp/email/social link in this session uses the new values immediately
-      setForm({ whatsappNumber: res.whatsAppNumber, email: res.email, instagramUrl: res.instagramUrl, facebookUrl: res.facebookUrl, tiktokUrl: res.tiktokUrl });
+      const res = await api.updateSettings({ storeName: form.storeName, whatsAppNumber: form.whatsappNumber, email: form.email, instagramUrl: form.instagramUrl, facebookUrl: form.facebookUrl, tiktokUrl: form.tiktokUrl });
+      applySaved(res); // store name, WhatsApp/email/social links in this session use the new values immediately
+      setForm({ storeName: res.storeName, whatsappNumber: res.whatsAppNumber, email: res.email, instagramUrl: res.instagramUrl, facebookUrl: res.facebookUrl, tiktokUrl: res.tiktokUrl });
       setOk("Settings saved.");
     } catch (x) { setErr(x.message); } finally { setBusy(false); }
   };
@@ -246,8 +247,8 @@ export function SettingsAdmin() {
         {[["Signed in as", adminEmail], ["API address", import.meta.env.VITE_API_URL || "http://localhost:5000"]].map(([l, v]) => <div key={l} className="flex justify-between gap-4 p-3"><dt className="text-muted">{l}</dt><dd className="truncate">{v}</dd></div>)}
       </dl>
 
-      <h2 className="mb-3 mt-10 font-display text-2xl">Business Contact &amp; Social Links</h2>
-      <p className="mb-4 max-w-lg text-sm text-muted">These power every WhatsApp button, the contact email, and the social links in the footer across the whole site.</p>
+      <h2 className="mb-3 mt-10 font-display text-2xl">Store Details, Contact &amp; Social Links</h2>
+      <p className="mb-4 max-w-lg text-sm text-muted">These power the store name, every WhatsApp button, the contact email, and the social links in the footer across the whole site.</p>
       <form onSubmit={save} className="max-w-sm space-y-4">
         <Err>{err || loadError}</Err>
         {ok && <p className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-300">{ok}</p>}
@@ -255,7 +256,7 @@ export function SettingsAdmin() {
           <div key={k}>
             <label className="block text-sm">{label}
               <input type={type} value={form[k]} onChange={(e) => set(k, e.target.value)} placeholder={placeholder} disabled={loading}
-                className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm" required={k === "whatsappNumber" || k === "email"} />
+                className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm" required={k === "storeName" || k === "whatsappNumber" || k === "email"} maxLength={k === "storeName" ? 150 : undefined} />
             </label>
             <p className="mt-1 text-xs text-muted">{hint}</p>
           </div>
